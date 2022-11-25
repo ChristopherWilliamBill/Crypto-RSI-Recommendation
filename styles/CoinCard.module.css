@@ -1,0 +1,50 @@
+.container{
+    position: relative;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    border-radius: .5rem;
+}
+
+.coinsymbol{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.coinsymbol{
+    height: 50%;
+}
+
+.coininfo{
+    margin-left: 2rem;
+}
+
+.pricered{
+    color:#fc3003;
+}
+
+.pricegreen{
+    color:#31c903;
+}
+
+.container:hover{
+    background-color: aliceblue;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.indicator{
+    position: absolute;
+    right: 0;
+    margin-right: 1rem;
+}
+
+.buysell{
+    background-color: lightgreen;
+    padding: 1rem;
+    text-align: center;
+    border-radius: 1rem;
+    width: 100%;
+}
