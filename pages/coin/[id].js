@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import styles from '../../styles/CoinDetail.module.css'
 
-export default function CoinDetail({Recommendation, coin, rsi}){
+export default function CoinDetail({Recommendation, coin, rsi,tempRsi}){
 
     // additional_notices: [] (0)
     // asset_platform_id: null
@@ -40,12 +40,43 @@ export default function CoinDetail({Recommendation, coin, rsi}){
     const {id} = router.query;
 
     return(
-        <div>
-            <p>{coin.id}</p>
-            <p>{coin.name}</p>
-            {console.log(coin)}
-            <h4>{Recommendation}</h4>
+        <>
+        <div className={styles.card}>
+            <div className={styles.card}>
+                <div className={styles.container}>
+                    <img src={coin.image.large} className={styles.logo}></img>
+                    <h3 className={styles.symbol}>{coin.name}</h3>
+                </div>
+                <h2>
+                    Action = {Recommendation}
+                </h2>
+                {
+                    Recommendation == 'Buy'?
+                    <>
+                        <h1>Rsi harus memiliki nilai lebih kecil dari 31 dalam 1 minggu terakhir</h1>
+                        <h1>Lalu aplikasi akan cek dari hari dimana nilai rsi terendah sampai hari ini</h1>
+                        <h1>
+                            Jika rsi terendah lebih kecil dari rsi pada hari yang sedang di loop dan harga disaat nilai rsi terendah lebih besar dari 
+                            harga pada hari yang sedang diloop maka dianjurkan untuk Buy
+                        </h1>
+                    </>:
+                    null
+                }
+                {
+                    Recommendation == 'Sell'?
+                    <h1>Rsi ... {tempRsi}</h1>:
+                    null
+                }
+                
+            </div>
         </div>
+        </>
+        // <div>
+        //     <p>{coin.id}</p>
+        //     <p>{coin.name}</p>
+        //     {console.log(coin)}
+        //     <h4>{Recommendation}</h4>
+        // </div>
     )
 }
 
@@ -121,12 +152,14 @@ export async function getServerSideProps({params}){
     let Recommendation = "Wait";
     let indexOfMinRsi = rsi.indexOf(Math.min(...rsi))
     let indexOfMaxRsi = rsi.indexOf(Math.max(...rsi))
+    let tempRsi = null;
     console.log("ayam2 "+rsi[indexOfMaxRsi])
 
     if(rsi[indexOfMinRsi] <= 30){
         for(let i = indexOfMinRsi+1, j = coinPrices21D.length - rsi.length + indexOfMinRsi - 1; i < rsi.length; i++, j++){
             if(rsi[indexOfMinRsi]<rsi[i] && coinPrices21D[indexOfMinRsi][1]>coinPrices21D[j][1] ){
                 Recommendation = "Buy";
+                tempRsi = rsi[i]
             }
         }
     }
@@ -135,6 +168,7 @@ export async function getServerSideProps({params}){
         for(let i = indexOfMaxRsi+1, j = coinPrices21D.length - rsi.length + indexOfMaxRsi - 1; i < rsi.length; i++, j++){
             if(rsi[indexOfMaxRsi]>rsi[i] && coinPrices21D[indexOfMaxRsi][1]<coinPrices21D[j][1] ){
                 Recommendation = "Sell";
+                tempRsi = rsi[i]
             }
         }
     }    
@@ -157,7 +191,8 @@ export async function getServerSideProps({params}){
         props:{
             Recommendation,
             rsi,
-            coin
+            coin,
+            tempRsi
         }
     }   
 }
