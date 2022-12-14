@@ -1,12 +1,49 @@
 import { useRouter } from "next/router";
+import styles from '../../styles/CoinDetail.module.css'
 
-export default function CoinDetail({Recommendation}){
+export default function CoinDetail({Recommendation, coin, rsi}){
+
+    // additional_notices: [] (0)
+    // asset_platform_id: null
+    // block_time_in_minutes: 10
+    // categories: ["Cryptocurrency"] (1)
+    // coingecko_rank: 1
+    // coingecko_score: 83.151
+    // community_data: {facebook_likes: null, twitter_followers: 5677293, reddit_average_posts_48h: 6.833, reddit_average_comments_48h: 635.75, reddit_subscribers: 4749233, …}
+    // community_score: 83.341
+    // country_origin: ""
+    // description: {en: "Bitcoin is the first successful internet money bas…kitties-need-1-billion-on-eos\">CryptoKitties</a>.", de: "", es: "", fr: "", it: "", …}
+    // detail_platforms: {: {decimal_place: null, contract_address: ""}}
+    // developer_data: {forks: 33433, stars: 67378, subscribers: 3944, total_issues: 7218, closed_issues: 6796, …}
+    // developer_score: 99.241
+    // genesis_date: "2009-01-03"
+    // hashing_algorithm: "SHA-256"
+    // id: "bitcoin"
+    // image: {thumb: "https://assets.coingecko.com/coins/images/1/thumb/bitcoin.png?1547033579", small: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png?1547033579", large: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579"}
+    // last_updated: "2022-12-14T13:47:03.460Z"
+    // links: {homepage: ["http://www.bitcoin.org", "", ""], blockchain_site: Array, official_forum_url: ["https://bitcointalk.org/", "", ""], chat_url: ["", "", ""], announcement_url: ["", ""], …}
+    // liquidity_score: 100.011
+    // localization: {en: "Bitcoin", de: "Bitcoin", es: "Bitcoin", fr: "Bitcoin", it: "Bitcoin", …}
+    // market_cap_rank: 1
+    // market_data: {current_price: Object, total_value_locked: null, mcap_to_tvl_ratio: null, fdv_to_tvl_ratio: null, roi: null, …}
+    // name: "Bitcoin"
+    // platforms: {: ""}
+    // public_interest_score: 0.073
+    // public_interest_stats: {alexa_rank: 9440, bing_matches: null}
+    // public_notice: null
+    // sentiment_votes_down_percentage: 18.45
+    // sentiment_votes_up_percentage: 81.55
+    // status_updates: [] (0)
+    // symbol: "btc"
+
     const router = useRouter();
     const {id} = router.query;
 
     return(
         <div>
-            <p>{id}</p>
+            <p>{coin.id}</p>
+            <p>{coin.name}</p>
+            {console.log(coin)}
             <h4>{Recommendation}</h4>
         </div>
     )
@@ -111,10 +148,16 @@ export async function getServerSideProps({params}){
 
     console.log("RSI: " + rsi)
 
+    const resCoin = await fetch(`https://api.coingecko.com/api/v3/coins/${coinsymbol}`)
+    const coin = await resCoin.json()
+  
+
 
     return{
         props:{
-            Recommendation
+            Recommendation,
+            rsi,
+            coin
         }
     }   
 }
