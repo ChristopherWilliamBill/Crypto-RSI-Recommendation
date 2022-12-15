@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import styles from '../../styles/CoinDetail.module.css'
 
-export default function CoinDetail({Recommendation, coin, rsi,tempRsi}){
+export default function CoinDetail({Recommendation, coin, rsi,tempRsi,hariKe,rsiMaxMin,hariPerubahanMomentum}){
 
     // additional_notices: [] (0)
     // asset_platform_id: null
@@ -54,17 +54,24 @@ export default function CoinDetail({Recommendation, coin, rsi,tempRsi}){
                     Recommendation == 'Buy'?
                     <>
                         <h1>Rsi harus memiliki nilai lebih kecil dari 31 dalam 1 minggu terakhir</h1>
-                        <h1>Lalu aplikasi akan cek dari hari dimana nilai rsi terendah sampai hari ini</h1>
+                        <h1>Pada rentang waktu 7 hari, rsi pada timeframe daily pernah menyentuh di angka {rsiMaxMin.toFixed(0)} pada hari ke {hariKe}</h1>
                         <h1>
-                            Jika rsi terendah lebih kecil dari rsi pada hari yang sedang di loop dan harga disaat nilai rsi terendah lebih besar dari 
-                            harga pada hari yang sedang diloop maka dianjurkan untuk Buy
+                            Pada hari ke {hariPerubahanMomentum} rsi ada di angka {tempRsi.toFixed(0)} yang mengindikasikan terjadinya perubahan momentum dan indikasi exhaustion pada sisi seller atau penjual
                         </h1>
                     </>:
                     null
                 }
                 {
                     Recommendation == 'Sell'?
-                    <h1>Rsi ... {tempRsi}</h1>:
+                    <>
+                        <h1>Rsi harus memiliki nilai lebih besar dari 69 dalam 1 minggu terakhir</h1>
+                        <h1>Pada rentang waktu 7 hari, rsi pada timeframe daily pernah menyentuh angka {rsiMaxMin.toFixed(0)} pada hari ke {hariKe}</h1>
+                        <h1>
+                        Pada hari ke {hariPerubahanMomentum} rsi ada di angka {tempRsi.toFixed(0)} yang mengindikasikan terjadinya perubahan momentum dan indikasi exhaustion pada sisi buyer atau pembeli
+                        </h1>
+                    </>
+                    
+                    :
                     null
                 }
                 
@@ -153,6 +160,9 @@ export async function getServerSideProps({params}){
     let indexOfMinRsi = rsi.indexOf(Math.min(...rsi))
     let indexOfMaxRsi = rsi.indexOf(Math.max(...rsi))
     let tempRsi = null;
+    let hariKe = null;
+    let rsiMaxMin = null;
+    let hariPerubahanMomentum = null;
     console.log("ayam2 "+rsi[indexOfMaxRsi])
 
     if(rsi[indexOfMinRsi] <= 30){
@@ -160,6 +170,9 @@ export async function getServerSideProps({params}){
             if(rsi[indexOfMinRsi]<rsi[i] && coinPrices21D[indexOfMinRsi][1]>coinPrices21D[j][1] ){
                 Recommendation = "Buy";
                 tempRsi = rsi[i]
+                hariKe = indexOfMinRsi+1
+                rsiMaxMin = rsi[indexOfMinRsi]
+                hariPerubahanMomentum = i+1
             }
         }
     }
@@ -169,6 +182,9 @@ export async function getServerSideProps({params}){
             if(rsi[indexOfMaxRsi]>rsi[i] && coinPrices21D[indexOfMaxRsi][1]<coinPrices21D[j][1] ){
                 Recommendation = "Sell";
                 tempRsi = rsi[i]
+                hariKe = indexOfMinRsi+1
+                rsiMaxMin = rsi[indexOfMinRsi]
+                hariPerubahanMomentum = i+1
             }
         }
     }    
@@ -192,7 +208,10 @@ export async function getServerSideProps({params}){
             Recommendation,
             rsi,
             coin,
-            tempRsi
+            tempRsi,
+            hariKe,
+            rsiMaxMin,
+            hariPerubahanMomentum
         }
     }   
 }
