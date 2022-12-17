@@ -39,51 +39,68 @@ export default function CoinDetail({Recommendation, coin, rsi,tempRsi,hariKe,rsi
     const router = useRouter();
     const {id} = router.query;
 
+    {console.log(coin.market_data)}
+
     return(
         <>
-        <div className={styles.card}>
-            <div className={styles.card}>
-                <div className={styles.container}>
-                    <img src={coin.image.large} className={styles.logo}></img>
-                    <h3 className={styles.symbol}>{coin.name}</h3>
+            <div className={styles.container}>
+                <div className={styles.coin}>
+                    <img src={coin.image.large} width={100} height={100} alt="test"/>
+                    <div className={styles.coinname}>
+                        <h1>{coin.name}</h1>
+                        <p>{coin.symbol.toUpperCase()}</p>
+                    </div>
+
+                    <div className={styles.coininfo}>
+                        <p>All Time High: ${coin.market_data.ath.usd}</p>
+                        <p>Current Price: ${coin.market_data.current_price.usd}</p>
+                    </div>
+
+                    <div className={styles.coinchanges}>
+                        <h3>Price Changes</h3>
+                        <table>
+                            <tr>
+                                <th>1h</th>
+                                <th>24h</th>
+                                <th>7d</th>
+                                <th>30d</th>
+                                <th>1y</th>
+                            </tr>
+                            <tr>
+                                <td>{coin.market_data.price_change_percentage_1h_in_currency.usd}%</td>
+                                <td>{coin.market_data.price_change_percentage_24h}%</td>
+                                <td>{coin.market_data.price_change_percentage_7d}%</td>
+                                <td>{coin.market_data.price_change_percentage_30d}%</td>
+                                <td>{coin.market_data.price_change_percentage_1y}%</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
-                <h2>
-                    Action = {Recommendation}
-                </h2>
-                {
-                    Recommendation == 'Buy'?
-                    <>
-                        <h1>Rsi harus memiliki nilai lebih kecil dari 31 dalam 1 minggu terakhir</h1>
-                        <h1>Pada rentang waktu 7 hari, rsi pada timeframe daily pernah menyentuh di angka {rsiMaxMin.toFixed(0)} pada hari ke {hariKe}</h1>
-                        <h1>
-                            Pada hari ke {hariPerubahanMomentum} rsi ada di angka {tempRsi.toFixed(0)} yang mengindikasikan terjadinya perubahan momentum dan indikasi exhaustion pada sisi seller atau penjual
-                        </h1>
-                    </>:
-                    null
-                }
-                {
-                    Recommendation == 'Sell'?
-                    <>
-                        <h1>Rsi harus memiliki nilai lebih besar dari 69 dalam 1 minggu terakhir</h1>
-                        <h1>Pada rentang waktu 7 hari, rsi pada timeframe daily pernah menyentuh angka {rsiMaxMin.toFixed(0)} pada hari ke {hariKe}</h1>
-                        <h1>
-                        Pada hari ke {hariPerubahanMomentum} rsi ada di angka {tempRsi.toFixed(0)} yang mengindikasikan terjadinya perubahan momentum dan indikasi exhaustion pada sisi buyer atau pembeli
-                        </h1>
-                    </>
-                    
-                    :
-                    null
-                }
-                
+
+                <div className={styles.recommendation}>
+                    <h3>Our Recommendation: </h3>
+                    <h1>{Recommendation}</h1>
+                </div>
             </div>
-        </div>
+
+            <div className={styles.reason}>
+                <h3>Our Reasoning:</h3>
+                {Recommendation == 'Wait' ? 
+                    <h1>Sabar bos</h1>
+                :
+                    <ul>
+                        <li>The Relative Strength Index (RSI) provides short-term <b>buy</b> and <b>sell</b> signals.</li>
+                        <li><b>Low</b> RSI levels (below 30) generate <b>buy</b> signals.</li>
+                        <li><b>High</b> RSI levels (above 70) generate <b>sell</b> signals.</li>
+                        <li>In the last 7 days, <b>{coin.name}</b> has reached the daily RSI rate of <b>{rsiMaxMin.toFixed(0)}</b>.</li>
+                        <li>This happens of ......... (tanggal)</li>
+                        <li>This indicates a change in price momentum and an exhaustion for {Recommendation == 'Buy' ? 'sellers' : 'buyers'}.</li>
+                        <li>Therefore, this is a good opportunity to <b>{Recommendation.toLowerCase()}</b>.</li>
+                    </ul>
+                }           
+            </div>
+
         </>
-        // <div>
-        //     <p>{coin.id}</p>
-        //     <p>{coin.name}</p>
-        //     {console.log(coin)}
-        //     <h4>{Recommendation}</h4>
-        // </div>
     )
 }
 
@@ -100,7 +117,7 @@ export async function getServerSideProps({params}){
 
     let url = baseURL + coinsymbol + `/market_chart/range?vs_currency=usd&from=${dateFrom}&to=${dateNow}`
 
-    console.log("URL: " + url)
+    // console.log("URL: " + url)
 
     const res = await fetch(url)
     const response = await res.json()
@@ -109,20 +126,24 @@ export async function getServerSideProps({params}){
 
     const coinPrices21D = await coinPrices.slice(Math.max(coinPrices.length - 22))
 
+    for(let i = 0; i < coinPrices21D.length; i++){
+        console.log("index ke " + i + ": " + coinPrices21D[i])
+    }
+
+
     const gain = new Array(21)
     const loss = new Array(21)
 
     for(let i = 0; i < 21; i++){
         let gainPerDay = await percentageChange(await coinPrices21D[i][1], await coinPrices21D[i + 1][1])
+        let lossPerDay = await percentageChange(await coinPrices21D[i][1], await coinPrices21D[i + 1][1])
+
         if(gainPerDay > 0){
             gain[i] = gainPerDay
         }else{
             gain[i] = 0
         }
-    }
 
-    for(let i = 0; i < 21; i++){
-        let lossPerDay = await percentageChange(await coinPrices21D[i][1], await coinPrices21D[i + 1][1])
         if(lossPerDay < 0){
             loss[i] = Math.abs(lossPerDay)
         }else{
@@ -130,8 +151,8 @@ export async function getServerSideProps({params}){
         }
     }
 
-    const avgGain14D = new Array(7)
-    const avgLoss14D = new Array(7)
+    const avgGain14D = new Array(7) // rata-rata gain untuk 7 hari terakhir, berdasarkan 14 hari sebelumnya
+    const avgLoss14D = new Array(7) // rata-rata loss untuk 7 hari terakhir, berdasarkan 14 hari sebelumnya
 
     for(let i = 0; i < 7; i++){
         let sumGain = gain.slice(i, i + 14).reduce((a,b)=>a+b,0) / 14;
@@ -142,6 +163,14 @@ export async function getServerSideProps({params}){
         let sumLoss = loss.slice(i, i + 14).reduce((a,b)=>a+b,0) / 14;
         avgLoss14D[i] = sumLoss
     }
+
+    // for(let i = 0; i < gain.length; i++){
+    //     console.log(gain[i])
+    // }
+
+
+    // console.log(avgGain14D)
+    // console.log(avgLoss14D)
 
     const rs = new Array(7)
 
@@ -156,18 +185,46 @@ export async function getServerSideProps({params}){
         let rsiPerDay = 100 - (100 / (1 + rs[i]))
         rsi[i] = rsiPerDay
     }
+
     let Recommendation = "Wait";
     let indexOfMinRsi = rsi.indexOf(Math.min(...rsi))
+    console.log(indexOfMinRsi)
+    console.log(rsi)
     let indexOfMaxRsi = rsi.indexOf(Math.max(...rsi))
     let tempRsi = null;
     let hariKe = null;
     let rsiMaxMin = null;
     let hariPerubahanMomentum = null;
-    console.log("ayam2 "+rsi[indexOfMaxRsi])
+
+
+    // ALGORITMA LAMA
+    // if(rsi[indexOfMinRsi] <= 30){
+    //     for(let i = indexOfMinRsi+1, j = coinPrices21D.length - rsi.length + indexOfMinRsi - 1; i < rsi.length; i++, j++){
+    //         if(rsi[indexOfMinRsi] < rsi[i] && coinPrices21D[indexOfMinRsi][1] > coinPrices21D[j][1]){
+    //             Recommendation = "Buy";
+    //             tempRsi = rsi[i]
+    //             hariKe = indexOfMinRsi+1
+    //             rsiMaxMin = rsi[indexOfMinRsi]
+    //             hariPerubahanMomentum = i+1
+    //         }
+    //     }
+    // }
+
+    // if(rsi[indexOfMaxRsi] >= 70){
+    //     for(let i = indexOfMaxRsi+1, j = coinPrices21D.length - rsi.length + indexOfMaxRsi - 1; i < rsi.length; i++, j++){
+    //         if(rsi[indexOfMaxRsi] > rsi[i] && coinPrices21D[indexOfMaxRsi][1] < coinPrices21D[j][1]){
+    //             Recommendation = "Sell";
+    //             tempRsi = rsi[i]
+    //             hariKe = indexOfMaxRsi+1
+    //             rsiMaxMin = rsi[indexOfMaxRsi]
+    //             hariPerubahanMomentum = i+1
+    //         }
+    //     }
+    // } 
 
     if(rsi[indexOfMinRsi] <= 30){
-        for(let i = indexOfMinRsi+1, j = coinPrices21D.length - rsi.length + indexOfMinRsi - 1; i < rsi.length; i++, j++){
-            if(rsi[indexOfMinRsi]<rsi[i] && coinPrices21D[indexOfMinRsi][1]>coinPrices21D[j][1] ){
+        for(let i = indexOfMinRsi, j = coinPrices21D.length - rsi.length + indexOfMinRsi; i < rsi.length; i++, j++){
+            if(rsi[indexOfMinRsi] <= rsi[i] && coinPrices21D[coinPrices21D.length - rsi.length + indexOfMinRsi][1] >= coinPrices21D[j][1]){
                 Recommendation = "Buy";
                 tempRsi = rsi[i]
                 hariKe = indexOfMinRsi+1
@@ -178,27 +235,18 @@ export async function getServerSideProps({params}){
     }
 
     if(rsi[indexOfMaxRsi] >= 70){
-        for(let i = indexOfMaxRsi+1, j = coinPrices21D.length - rsi.length + indexOfMaxRsi - 1; i < rsi.length; i++, j++){
-            if(rsi[indexOfMaxRsi]>rsi[i] && coinPrices21D[indexOfMaxRsi][1]<coinPrices21D[j][1] ){
+        for(let i = indexOfMaxRsi, j = coinPrices21D.length - rsi.length + indexOfMaxRsi; i < rsi.length; i++, j++){
+            if(rsi[indexOfMaxRsi] >= rsi[i] && coinPrices21D[coinPrices21D.length - rsi.length + indexOfMaxRsi][1] <= coinPrices21D[j][1]){
                 Recommendation = "Sell";
                 tempRsi = rsi[i]
-                hariKe = indexOfMinRsi+1
-                rsiMaxMin = rsi[indexOfMinRsi]
+                hariKe = indexOfMaxRsi+1
+                rsiMaxMin = rsi[indexOfMaxRsi]
                 hariPerubahanMomentum = i+1
             }
         }
-    }    
-    // console.log("ayam" + indexOfMinRsi)
+    } 
 
-    // console.log("GAIN: " + gain)
-    // console.log("LOSS: " + loss)
-    // console.log("AVGGAIN: " + avgGain14D)
-    // console.log("AVGLOSS: " + avgLoss14D)
-    
-
-    console.log("RSI: " + rsi)
-
-    const resCoin = await fetch(`https://api.coingecko.com/api/v3/coins/${coinsymbol}`)
+    const resCoin = await fetch(`https://api.coingecko.com/api/v3/coins/${coinsymbol}`) //detail coin
     const coin = await resCoin.json()
   
 
