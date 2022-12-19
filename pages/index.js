@@ -8,7 +8,6 @@ export default function Home({response}) {
 
   return (
     <>
-      <h1 className={styles.header}>Money Maker 9000</h1>
       <h5 className={styles.header}>Donate: mzpeMhDdL7YkrM2yC9mAFobP1rr4bGuBd7</h5>
 
       <div className={styles.searchbar}>

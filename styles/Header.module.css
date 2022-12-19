@@ -1,0 +1,29 @@
+.container{
+    width: 100%;
+    padding: 10px;
+    background-color: antiquewhite;
+    position: sticky;
+    top:0
+}
+
+.navbar{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar h3{
+    background-color: aliceblue;
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+.navbar h3:hover{
+    background-color: lightgreen;
+    cursor: pointer;
+}
+
+.container p{
+    text-align: center;
+}

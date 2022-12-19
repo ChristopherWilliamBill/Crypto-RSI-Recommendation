@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import styles from '../../styles/CoinDetail.module.css'
 
-export default function CoinDetail({Recommendation, coin, rsi,tempRsi,hariKe,rsiMaxMin,hariPerubahanMomentum}){
+export default function CoinDetail({Recommendation, coin, rsi, tempRsi, hariKe, rsiMaxMin, hariPerubahanMomentum}){
 
     // additional_notices: [] (0)
     // asset_platform_id: null
@@ -38,8 +38,9 @@ export default function CoinDetail({Recommendation, coin, rsi,tempRsi,hariKe,rsi
 
     const router = useRouter();
     const {id} = router.query;
-
-    {console.log(coin.market_data)}
+    let today = new Date();
+    let day  = today.getDate()
+    // {console.log(coin.market_data)}
 
     return(
         <>
@@ -83,22 +84,32 @@ export default function CoinDetail({Recommendation, coin, rsi,tempRsi,hariKe,rsi
                 </div>
             </div>
 
-            <div className={styles.reason}>
-                <h3>Our Reasoning:</h3>
-                {Recommendation == 'Wait' ? 
-                    <h1>Sabar bos</h1>
-                :
-                    <ul>
-                        <li>The Relative Strength Index (RSI) provides short-term <b>buy</b> and <b>sell</b> signals.</li>
-                        <li><b>Low</b> RSI levels (below 30) generate <b>buy</b> signals.</li>
-                        <li><b>High</b> RSI levels (above 70) generate <b>sell</b> signals.</li>
-                        <li>In the last 7 days, <b>{coin.name}</b> has reached the daily RSI rate of <b>{rsiMaxMin.toFixed(0)}</b>.</li>
-                        <li>This happens of ......... (tanggal)</li>
-                        <li>This indicates a change in price momentum and an exhaustion for {Recommendation == 'Buy' ? 'sellers' : 'buyers'}.</li>
-                        <li>Therefore, this is a good opportunity to <b>{Recommendation.toLowerCase()}</b>.</li>
-                    </ul>
-                }           
-            </div>
+            {
+            hariKe ?             
+                <div className={styles.reasoncontainer}>
+                    {Recommendation == 'Wait' ? 
+                        <h1>Sabar bos</h1>
+                    :
+                        <div className={styles.reasons}>
+                            <h3>The Relative Strength Index (RSI) provides short-term <b>buy</b> and <b>sell</b> signals.</h3>
+                            <div className={styles.lowhigh}>
+                                <p><b>Low</b> RSI levels (below 30) generate <b>buy</b> signals.</p>
+                                <p><b>High</b> RSI levels (above 70) generate <b>sell</b> signals.</p>
+                            </div>
+
+                            <div>
+                                <p>In the last 7 days, <b>{coin.name}</b> has reached the daily RSI rate of <b>{rsiMaxMin.toFixed(0)}</b>.</p>
+                                <p>This happens on {today.getMonth() + 1}/{day - (7 - hariKe)}/{today.getFullYear()}</p>
+                                <p>This indicates a change in price momentum and an exhaustion for {Recommendation == 'Buy' ? 'sellers' : 'buyers'}.</p>
+                            </div>
+                            
+                            <h1>Therefore, this is a good opportunity to <b>{Recommendation.toLowerCase()}</b>.</h1>
+                        </div>
+                    }           
+                </div>
+            : null
+            }
+
 
         </>
     )

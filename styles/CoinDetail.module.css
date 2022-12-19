@@ -67,6 +67,24 @@
   border-radius: 1rem;
 }
 
-.reason{
+.reasoncontainer{
   padding: 1rem;
+}
+
+.reasons{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.lowhigh{
+  width: 60%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.recommendation h1{
+  background-color: antiquewhite;
+  border-radius: 1rem;
 }
