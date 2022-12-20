@@ -85,11 +85,27 @@ export default function CoinDetail({Recommendation, coin, rsi, tempRsi, hariKe, 
             </div>
 
             {
+            Recommendation == 'Wait' ? 
+                <div className={styles.reasoncontainer}>
+                    <div className={styles.reasons}>
+                        <h3>The Relative Strength Index (RSI) provides short-term <b>buy</b> and <b>sell</b> signals.</h3>
+                        <div className={styles.lowhigh}>
+                            <p><b>Low</b> RSI levels (below 30) generate <b>buy</b> signals.</p>
+                            <p><b>High</b> RSI levels (above 70) generate <b>sell</b> signals.</p>
+                        </div>
+
+                        <div>
+                            <p>In the last 7 days, <b>{coin.name}</b>'s RSI levels haven't reached neither 30 nor 70.</p>
+                        </div>
+                        
+                        <h1>Therefore, a good action for {coin.name} is to wait and see.</h1>
+                    </div>          
+                </div>            
+            :null}
+
+            {
             hariKe ?             
                 <div className={styles.reasoncontainer}>
-                    {Recommendation == 'Wait' ? 
-                        <h1>Sabar bos</h1>
-                    :
                         <div className={styles.reasons}>
                             <h3>The Relative Strength Index (RSI) provides short-term <b>buy</b> and <b>sell</b> signals.</h3>
                             <div className={styles.lowhigh}>
@@ -98,14 +114,16 @@ export default function CoinDetail({Recommendation, coin, rsi, tempRsi, hariKe, 
                             </div>
 
                             <div>
-                                <p>In the last 7 days, <b>{coin.name}</b> has reached the daily RSI rate of <b>{rsiMaxMin.toFixed(0)}</b>.</p>
-                                <p>This happens on {today.getMonth() + 1}/{day - (7 - hariKe)}/{today.getFullYear()}</p>
-                                <p>This indicates a change in price momentum and an exhaustion for {Recommendation == 'Buy' ? 'sellers' : 'buyers'}.</p>
+                                <p>In the last 7 days, <b>{coin.name}</b> has reached the daily <b>RSI rate of {rsiMaxMin.toFixed(2)}</b>.</p>
+                                <p>This happens on <b>{today.getMonth() + 1}/{day - (7 - hariKe)}/{today.getFullYear()}</b></p>
+                                <p>
+                                    After reaching RSI rate of {rsiMaxMin.toFixed(2)}, {coin.name}'s <b>price continues to {Recommendation == 'Buy' ? 'dump' : 'rally'} while RSI rate is {Recommendation == 'Buy' ? 'up' : 'down'} to {tempRsi.toFixed(2)}</b>
+                                </p>
+                                <p>This indicates a change in price momentum and an <b>exhaustion for {Recommendation == 'Buy' ? 'sellers' : 'buyers'}.</b></p>
                             </div>
                             
-                            <h1>Therefore, this is a good opportunity to <b>{Recommendation.toLowerCase()}</b>.</h1>
-                        </div>
-                    }           
+                            <h1>Therefore, this is a good opportunity to {Recommendation.toLowerCase()}.</h1>
+                        </div>          
                 </div>
             : null
             }
@@ -235,7 +253,7 @@ export async function getServerSideProps({params}){
 
     if(rsi[indexOfMinRsi] <= 30){
         for(let i = indexOfMinRsi, j = coinPrices21D.length - rsi.length + indexOfMinRsi; i < rsi.length; i++, j++){
-            if(rsi[indexOfMinRsi] <= rsi[i] && coinPrices21D[coinPrices21D.length - rsi.length + indexOfMinRsi][1] >= coinPrices21D[j][1]){
+            if(rsi[indexOfMinRsi] < rsi[i] && coinPrices21D[coinPrices21D.length - rsi.length + indexOfMinRsi][1] > coinPrices21D[j][1] && i != rsi.length){
                 Recommendation = "Buy";
                 tempRsi = rsi[i]
                 hariKe = indexOfMinRsi+1
@@ -247,7 +265,7 @@ export async function getServerSideProps({params}){
 
     if(rsi[indexOfMaxRsi] >= 70){
         for(let i = indexOfMaxRsi, j = coinPrices21D.length - rsi.length + indexOfMaxRsi; i < rsi.length; i++, j++){
-            if(rsi[indexOfMaxRsi] >= rsi[i] && coinPrices21D[coinPrices21D.length - rsi.length + indexOfMaxRsi][1] <= coinPrices21D[j][1]){
+            if(rsi[indexOfMaxRsi] > rsi[i] && coinPrices21D[coinPrices21D.length - rsi.length + indexOfMaxRsi][1] < coinPrices21D[j][1] && i != rsi.length){
                 Recommendation = "Sell";
                 tempRsi = rsi[i]
                 hariKe = indexOfMaxRsi+1
