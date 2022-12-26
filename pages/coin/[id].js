@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import styles from '../../styles/CoinDetail.module.css'
 
-export default function CoinDetail({Recommendation, coin, rsi, tempRsi, hariKe, rsiMaxMin, hariPerubahanMomentum}){
+export default function CoinDetail({Recommendation, coin, rsi, tempRsi, hariKe, rsiMaxMin, coinPrices21D}){
 
     // additional_notices: [] (0)
     // asset_platform_id: null
@@ -40,7 +40,19 @@ export default function CoinDetail({Recommendation, coin, rsi, tempRsi, hariKe, 
     const {id} = router.query;
     let today = new Date();
     let day  = today.getDate()
-    // {console.log(coin.market_data)}
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    const unixToTimestamp = (unix) => {
+        const a = new Date(unix)
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const year = a.getFullYear();
+        const month = months[a.getMonth()];
+        const date = a.getDate();
+
+        let time = date + ' ' + month + ' ' + year 
+
+        return time;
+    }
 
     return(
         <>
@@ -53,8 +65,8 @@ export default function CoinDetail({Recommendation, coin, rsi, tempRsi, hariKe, 
                     </div>
 
                     <div className={styles.coininfo}>
-                        <p>All Time High: ${coin.market_data.ath.usd}</p>
-                        <p>Current Price: ${coin.market_data.current_price.usd}</p>
+                        <p>All Time High: ${coin.market_data.ath.usd.toFixed(2)}</p>
+                        <p>Current Price: ${coin.market_data.current_price.usd.toFixed(2)}</p>
                     </div>
 
                     <div className={styles.coinchanges}>
@@ -68,11 +80,11 @@ export default function CoinDetail({Recommendation, coin, rsi, tempRsi, hariKe, 
                                 <th>1y</th>
                             </tr>
                             <tr>
-                                <td>{coin.market_data.price_change_percentage_1h_in_currency.usd}%</td>
-                                <td>{coin.market_data.price_change_percentage_24h}%</td>
-                                <td>{coin.market_data.price_change_percentage_7d}%</td>
-                                <td>{coin.market_data.price_change_percentage_30d}%</td>
-                                <td>{coin.market_data.price_change_percentage_1y}%</td>
+                                <td>{coin.market_data.price_change_percentage_1h_in_currency.usd.toFixed(2)}%</td>
+                                <td>{coin.market_data.price_change_percentage_24h.toFixed(2)}%</td>
+                                <td>{coin.market_data.price_change_percentage_7d.toFixed(2)}%</td>
+                                <td>{coin.market_data.price_change_percentage_30d.toFixed(2)}%</td>
+                                <td>{coin.market_data.price_change_percentage_1y.toFixed(2)}%</td>
                             </tr>
                         </table>
                     </div>
@@ -115,7 +127,7 @@ export default function CoinDetail({Recommendation, coin, rsi, tempRsi, hariKe, 
 
                             <div>
                                 <p>In the last 7 days, <b>{coin.name}</b> has reached the daily <b>RSI rate of {rsiMaxMin.toFixed(2)}</b>.</p>
-                                <p>This happens on <b>{today.getMonth() + 1}/{day - (7 - hariKe)}/{today.getFullYear()}</b></p>
+                                <p>This happens on <b>{day - (7 - hariKe)} {months[today.getMonth()]} {today.getFullYear()}</b></p>
                                 <p>
                                     After reaching RSI rate of {rsiMaxMin.toFixed(2)}, {coin.name}'s <b>price continues to {Recommendation == 'Buy' ? 'dump' : 'rally'} while RSI rate is {Recommendation == 'Buy' ? 'up' : 'down'} to {tempRsi.toFixed(2)}</b>
                                 </p>
@@ -127,8 +139,27 @@ export default function CoinDetail({Recommendation, coin, rsi, tempRsi, hariKe, 
                 </div>
             : null
             }
-
-
+            <hr></hr>
+            <div className={styles.rsicontainer}>
+                <h3>{coin.name}'s prices and RSI levels in the last 7 days:</h3>
+                <table className={styles.table}>
+                <tr>
+                    <th>Date</th>
+                    <th>Price</th> 
+                    <th>RSI Levels</th>
+                </tr>
+                {rsi.map((r, index) => 
+                    <tr>
+                        <td>{unixToTimestamp(coinPrices21D[coinPrices21D.length - 7 + index][0])}</td>
+                        {index == rsi.length - 1 ? 
+                        <td>${coin.market_data.current_price.usd.toFixed(2)}</td>
+                        : <td>${coinPrices21D[coinPrices21D.length - 7 + index][1].toFixed(2)}</td>
+                        }
+                        <td>{r.toFixed(2)}</td>
+                    </tr>
+                )}
+                </table>
+            </div>
         </>
     )
 }
@@ -288,7 +319,7 @@ export async function getServerSideProps({params}){
             tempRsi,
             hariKe,
             rsiMaxMin,
-            hariPerubahanMomentum
+            coinPrices21D
         }
     }   
 }

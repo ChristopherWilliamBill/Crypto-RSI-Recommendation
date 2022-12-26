@@ -8,11 +8,9 @@ export default function Home({response}) {
 
   return (
     <>
-      <h5 className={styles.header}>Donate: mzpeMhDdL7YkrM2yC9mAFobP1rr4bGuBd7</h5>
-
       <div className={styles.searchbar}>
         <p>Search coin:</p>
-        <input type="text" className={styles.searchinput} name="searchedcoin" value={searchedcoin} onChange={(e) => setSearchedCoin(e.target.value)}></input>
+        <input type="text" className={styles.searchinput} name="searchedcoin" value={searchedcoin} onChange={(e) => setSearchedCoin(e.target.value.toLowerCase())} placeholder="bitcoin"></input>
       </div>
 
       <div className={styles.cardcontainer}>

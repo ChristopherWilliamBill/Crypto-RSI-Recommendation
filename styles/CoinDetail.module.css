@@ -88,3 +88,44 @@
   background-color: antiquewhite;
   border-radius: 1rem;
 }
+
+.rsicontainer h3{
+  text-align: center;
+}
+
+.rsicontainer{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.table {
+  border-collapse: collapse;
+  margin: 25px 0;
+  font-size: 0.9em;
+  min-width: 400px;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  border: 1px solid black;
+}
+
+.table th{
+  background-color: antiquewhite;
+  text-align: left;
+  padding: 1rem;
+}
+
+.table td{
+  padding: 1rem;
+  text-align: left;
+}
+
+.table tr{
+  border-bottom: 1px solid black;
+}
+
+.table tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
