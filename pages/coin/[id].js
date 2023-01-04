@@ -94,7 +94,6 @@ export default function CoinDetail({Recommendation, coin, rsi, tempRsi, hariKe, 
 
                             <div>
                                 <p>In the last 7 days, <b>{coin.name}</b> has reached the daily <b>RSI rate of {rsiMaxMin.toFixed(2)}</b>.</p>
-                                <p>This happens on <b>{day - (7 - hariKe)} {months[today.getMonth()]} {today.getFullYear()}</b></p>
                                 <p>
                                     After reaching RSI rate of {rsiMaxMin.toFixed(2)}, {coin.name}'s <b>price continues to {Recommendation == 'Buy' ? 'dump' : 'rally'} while RSI rate is {Recommendation == 'Buy' ? 'up' : 'down'} to {tempRsi.toFixed(2)}</b>
                                 </p>
